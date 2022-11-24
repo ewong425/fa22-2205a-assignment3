@@ -14,91 +14,105 @@ public class EthanDemoHashingWithLinearProbing {
     public static void main(String[] args) {
         header(3, 1);
         System.out.println("Decide on the initial capacity based on the load factor and dataset size");
-        System.out.println("How many data items: ");
+        System.out.print("How many data items: ");
         items = input.nextInt();
-        System.out.println("What is the load factor (Recommended: <= 0.5): ");
+        System.out.print("What is the load factor (Recommended: <= 0.5): ");
         lf = input.nextDouble();
-        tableCapacity = checkPrime(items);
+        tableCapacity = (int)(items/lf);
+        tableCapacity = checkPrime(tableCapacity);
         System.out.println("The minimum table capacity would be: " + tableCapacity);
 
-        EthanValueEntry[] temp = new EthanValueEntry[tableCapacity];
-        for(int i=0; i<tableCapacity-1; i++) {
-            temp[i] = new EthanValueEntry();
+        hashTable = new EthanValueEntry[tableCapacity];
+
+        for(int i=0; i<hashTable.length; i++) {
+            hashTable[i] = new EthanValueEntry();
         }
-        hashTable = temp;
-        for(int i=0; i<tableCapacity-1; i++) {
-            System.out.println("Enter item " + (i+1));
-            addValueLinearProbe(input.nextInt());
+        //hashTable = temp;
+        for(int i=0; i<items; i++) {
+            System.out.print("Enter item " + (i+1) + ":" );
+            Integer num = input.nextInt();
+            addValueLinearProbe(num);
         }
-        System.out.println("The current Hash-Table: ");
+        System.out.print("The Current Hash-Table: ");
         printHashTable();
-        System.out.println("\nLets remove two values from the table and then add one...\n");
-        System.out.println("Enter a value you want to remove: ");
+        System.out.println("\n\nLets remove two values from the table and then add one...\n");
+        System.out.print("Enter a value you want to remove: ");
         removeValueLinearProb(input.nextInt());
-        System.out.println("The current hash table is");
+        System.out.print("The Current Hash-Table: ");
         printHashTable();
-        System.out.println("Enter a value you want to remove: ");
+        System.out.print("\nEnter a value you want to remove: ");
         removeValueLinearProb(input.nextInt());
-        System.out.println("The current hash table is");
+        System.out.print("The Current Hash-Table: ");
+        printHashTable();
+        System.out.print("\nEnter value to add to the table: ");
+        int key = input.nextInt();
+        addValueLinearProbe(key);
+        System.out.print("The Current Hash-Table: ");
         printHashTable();
 
-        System.out.println("Enter value to add to the table");
-        addValueLinearProbe(input.nextInt());
-        System.out.println("The current hash table is");
-        printHashTable();
-
-        System.out.println("Rehashing the table....");
+        System.out.println("\n\nRehashing the table....");
         reHashingWithLinearProbe();
         System.out.println("The rehashed table capacity is " + tableCapacity);
-        System.out.println("current hash table: ");
+        System.out.print("The Current Hash-Table: ");
         printHashTable();
+        System.out.println();
         footer(3,1);
     }
     public static void reHashingWithLinearProbe() {
         int newSize = tableCapacity * 2;
-        checkPrime(newSize);
+        tableCapacity = checkPrime(newSize);
         workingHashTable = hashTable;
-        EthanValueEntry[] hashTable = new EthanValueEntry[newSize];
-        for(int i=0; i<tableCapacity-1; i++) {
-            int k = workingHashTable[i].getKey();
+        EthanValueEntry[] tempArray = new EthanValueEntry[tableCapacity];
+        hashTable = tempArray;
+        for(int i=0; i<hashTable.length; i++) {
+            hashTable[i] = new EthanValueEntry();
+        }
+        for(int i=0; i<workingHashTable.length; i++) {
             if(workingHashTable[i].getKey() == -111) {
-                addValueLinearProbe(k);
+                hashTable[i].setKey(-1);
             } else {
-                hashTable[i].setKey(k);
+                addValueLinearProbe(workingHashTable[i].getKey());
             }
         }
-        tableCapacity = newSize;
     }
-    public static void removeValueLinearProb(Integer val) {
-        EthanValueEntry n = new EthanValueEntry(val);
-        for(int i=0; i<tableCapacity-1; i++) {
-            if(hashTable[i].getKey() == n.getKey()) {
+    public static void removeValueLinearProb(Integer value) {
+        boolean noKey = false;
+        for(int i=0; i<hashTable.length; i++) {
+            if(hashTable[i].getKey() == value) {
                 hashTable[i].setKey(-111);
+                noKey = false;
+                break;
             } else {
-                System.out.println("Key is not Found");
+                noKey = true;
             }
         }
-        items--;
+        if(noKey) {
+            System.out.print("Key not Found! ");
+        }
     }
-    public static void addValueLinearProbe(Integer val) {
-        EthanValueEntry n = new EthanValueEntry(val);
-        int index = n.getKey() % (tableCapacity - 1);
+    public static void addValueLinearProbe(Integer key) {
+        int index = key % (tableCapacity);
+        if(index < 0) {
+            index += tableCapacity;
+        }
         while(hashTable[index].getKey() != -1) {
             index++;
-            index %= (tableCapacity -1);
+            index = index % tableCapacity;
         }
-        hashTable[index].setKey(n.getKey());
-        items++;
+        hashTable[index].setKey(key);
     }
     public static void printHashTable() {
-        System.out.println("[");
+        System.out.print("[");
         for(int i=0; i<hashTable.length; i++) {
             if(hashTable[i].getKey() == -1) {
-                System.out.print(" null");
+                System.out.print("null, ");
             } else if(hashTable[i].getKey() == -111) {
-                System.out.print(" available");
+                System.out.print("available, ");
+            } else {
+                System.out.print(hashTable[i].getKey() + ", ");
             }
         }
+        System.out.print("\b\b]");
     }
     public static int checkPrime(int n) {
         int m = n / 2;//we just need to check half of the n factors

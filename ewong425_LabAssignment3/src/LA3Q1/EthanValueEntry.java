@@ -8,8 +8,8 @@ public class EthanValueEntry {
     public EthanValueEntry(Integer key) {
         this.key = key; //constructor sets parameter key to this.key
     }
-    public void setKey(Integer k) {
-        key = k; //setter method sets key to input key
+    public void setKey(Integer key) {
+        this.key = key; //setter method sets key to input key
     }
     public Integer getKey() {
         return key; //getter method returns key value
